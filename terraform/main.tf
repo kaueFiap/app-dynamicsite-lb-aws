@@ -9,8 +9,6 @@ resource "aws_internet_gateway" "igw" {
     vpc_id = aws_vpc.vpc.id
 }
 
-// testando o pull request
-
 # RESOURCE: SUBNETS
 resource "aws_subnet" "sn_pub_az1a" {
     vpc_id                  = aws_vpc.vpc.id
@@ -89,7 +87,25 @@ resource "aws_instance" "instance-1a" {
     key_name               = "vockey"
 }
 
+resource "aws_instance" "instance-1ab" {
+    ami                    = "ami-00a929b66ed6e0de6"
+    instance_type          = "t2.micro"
+    subnet_id              = aws_subnet.sn_pub_az1a.id
+    vpc_security_group_ids = [aws_security_group.vpc_sg_pub.id]
+    user_data              = "${base64encode(data.template_file.user_data.rendered)}"
+    key_name               = "vockey"
+}
+
 resource "aws_instance" "instance-1b" {
+    ami                    = "ami-00a929b66ed6e0de6"
+    instance_type          = "t2.micro"
+    subnet_id              = aws_subnet.sn_pub_az1b.id
+    vpc_security_group_ids = [aws_security_group.vpc_sg_pub.id]
+    user_data              = "${base64encode(data.template_file.user_data.rendered)}"
+    key_name               = "vockey"
+}
+
+resource "aws_instance" "instance-1bc" {
     ami                    = "ami-00a929b66ed6e0de6"
     instance_type          = "t2.micro"
     subnet_id              = aws_subnet.sn_pub_az1b.id
@@ -112,9 +128,20 @@ resource "aws_lb_target_group_attachment" "ec2_lb_tg-instance_1a" {
     port             = 80
 }
 
+resource "aws_lb_target_group_attachment" "ec2_lb_tg-instance_1ab" {
+    target_group_arn = aws_lb_target_group.ec2_lb_tg.arn
+    target_id        = aws_instance.instance-1ab.id
+    port             = 80
+}
+
 resource "aws_lb_target_group_attachment" "ec2_lb_tg-instance_1b" {
     target_group_arn = aws_lb_target_group.ec2_lb_tg.arn
     target_id        = aws_instance.instance-1b.id
+    port             = 80
+}
+resource "aws_lb_target_group_attachment" "ec2_lb_tg-instance_1bc" {
+    target_group_arn = aws_lb_target_group.ec2_lb_tg.arn
+    target_id        = aws_instance.instance-1bc.id
     port             = 80
 }
 
